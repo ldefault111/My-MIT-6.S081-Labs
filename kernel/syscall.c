@@ -100,10 +100,12 @@ extern uint64 sys_pipe(void);
 extern uint64 sys_read(void);
 extern uint64 sys_sbrk(void);
 extern uint64 sys_sleep(void);
+extern uint64 sys_trace(void);
 extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
+
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -127,6 +129,13 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_trace]   sys_trace,
+};
+
+static const char* sysname[] = {"",
+	"fork", "exit", "wait", "pipe", "read", "kill", "exec", "fstat", "chdir",
+	"dup", "getpid", "sbrk", "sleep", "uptime", "open", "write", "mknod",
+	"unlink", "link", "mkdir", "close", "trace"
 };
 
 void
@@ -135,9 +144,12 @@ syscall(void)
   int num;
   struct proc *p = myproc();
 
-  num = p->trapframe->a7;
+  num = p->trapframe->a7;       // current proc's system call numbers
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    p->trapframe->a0 = syscalls[num]();
+    p->trapframe->a0 = syscalls[num](); // return value 
+    if(p->mask & (1 << num)) {  // current proc is the sysproc we trace
+      printf("%d: syscall %s -> %d\n", p->pid, sysname[num], p->trapframe->a0);
+    }
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);
