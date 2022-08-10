@@ -100,6 +100,7 @@ extern uint64 sys_pipe(void);
 extern uint64 sys_read(void);
 extern uint64 sys_sbrk(void);
 extern uint64 sys_sleep(void);
+extern uint64 sys_sysinfo(void);
 extern uint64 sys_trace(void);
 extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
@@ -130,12 +131,13 @@ static uint64 (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_trace]   sys_trace,
+[SYS_sysinfo] sys_sysinfo,
 };
 
 static const char* sysname[] = {"",
 	"fork", "exit", "wait", "pipe", "read", "kill", "exec", "fstat", "chdir",
 	"dup", "getpid", "sbrk", "sleep", "uptime", "open", "write", "mknod",
-	"unlink", "link", "mkdir", "close", "trace"
+	"unlink", "link", "mkdir", "close", "trace", "sysinfo"
 };
 
 void

@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -106,4 +107,19 @@ sys_trace(void)
     return -1;
   myproc()->mask = mask;
   return 0;
+}
+
+uint64
+sys_sysinfo(void)
+{
+  uint64 dstva;             // virtual address
+
+  if(argaddr(0, &dstva) < 0) // get virtual address dstva
+    return -1;
+
+  struct sysinfo info;
+  info.freemem = get_freemem(); // kalloc.c
+  info.nproc = get_nproc();     // proc.c
+
+  return copyout(myproc()->pagetable, dstva, (char *)&info, sizeof(info));
 }
