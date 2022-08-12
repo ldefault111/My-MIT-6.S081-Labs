@@ -455,3 +455,20 @@ vmprint(pagetable_t pagetable)
   printf("page table %p\n", pagetable);
   vmprint_help(pagetable, 1);
 }
+
+// check PTE_A
+uint64
+check_pgaccess(pagetable_t pagetable, uint64 va, int npages)
+{
+  if(va >= MAXVA)
+    panic("walk");
+  uint64 res = 0;
+  for(int i = 0; i < npages; i++) { // check each page
+    pte_t* pte = walk(pagetable, va + i * PGSIZE, 0);
+    if(pte && (*pte & PTE_A)) {     // access
+      res |= (1L << i);
+      *pte &= ~PTE_A;               // 111...0111... reset *pte
+    }
+  }
+  return res;
+}

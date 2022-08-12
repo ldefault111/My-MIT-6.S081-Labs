@@ -80,7 +80,14 @@ sys_sleep(void)
 int
 sys_pgaccess(void)
 {
-  // lab pgtbl: your code here.
+  uint64 addr, bits;
+  int npages;
+  if(argaddr(0, &addr) < 0 || argint(1, &npages) < 0 || argaddr(2, &bits) < 0)
+    return -1;
+  struct proc *p = myproc();
+  uint64 res = check_pgaccess(p->pagetable, addr, npages);
+  if(copyout(p->pagetable, bits, (char *)&res, sizeof(res)) < 0)
+    return -1;
   return 0;
 }
 #endif
